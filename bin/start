@@ -1,0 +1,13 @@
+#!/bin/ash
+
+set -eu
+
+SYNC_SCHEDULE="${SYNC_SCHEDULE:-0 0 * * *}"
+
+export -p > /run/sync.env
+
+echo "# root" > /var/spool/cron/crontabs/root
+echo "${SYNC_SCHEDULE} . /run/sync.env; /bin/nice -n 10 /usr/local/bin/notify-failure /usr/local/bin/sync" >> /var/spool/cron/crontabs/root
+chmod 600 /var/spool/cron/crontabs/root
+
+exec /usr/sbin/crond -f -d 6

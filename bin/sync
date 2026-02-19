@@ -1,0 +1,35 @@
+#!/bin/ash
+
+umask 077
+
+info() {
+  echo "$(basename "$0") [$(date +'%Y-%m-%d %H:%M:%S %Z')]  INFO: $*" >&2
+}
+
+warn() {
+  echo "$(basename "$0") [$(date +'%Y-%m-%d %H:%M:%S %Z')]  WARN: $*" >&2
+}
+
+fatal() {
+  echo "$(basename "$0") [$(date +'%Y-%m-%d %H:%M:%S %Z')] FATAL: $*" >&2
+  exit 1
+}
+
+[ "$(id -u)" -eq 0 ] || fatal "superuser privileges are required to perform a sync"
+
+SYNC_LOCKFILE_PATH="/run/lock/sync.lock"
+
+info "acquiring lock on ${SYNC_LOCKFILE_PATH}"
+mkdir -p "$(dirname "${SYNC_LOCKFILE_PATH}")" || fatal "failed to create lock directory"
+exec 9>"${SYNC_LOCKFILE_PATH}"
+flock -x -n 9 || fatal "another sync is already running"
+
+echo "$$" > "${SYNC_LOCKFILE_PATH}"
+
+[ -n "${RCLONE_SOURCE:-}" ] || fatal "'RCLONE_SOURCE' is not set"
+[ -n "${RCLONE_TARGET:-}" ] || fatal "'RCLONE_TARGET' is not set"
+
+info "syncing ${RCLONE_SOURCE} to ${RCLONE_TARGET}"
+rclone sync "${RCLONE_SOURCE}" "${RCLONE_TARGET}" || fatal "failed to sync ${RCLONE_SOURCE} to ${RCLONE_TARGET}"
+
+info "sync complete: ${RCLONE_SOURCE} -> ${RCLONE_TARGET}"
