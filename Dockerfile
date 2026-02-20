@@ -19,7 +19,7 @@ ARG ALPINE_VERSION=3.23
 
 FROM alpine:${ALPINE_VERSION}
 
-LABEL org.opencontainers.image.description="Rclone Sync"
+LABEL org.opencontainers.image.description="Mirror rclone remotes on a cron schedule"
 LABEL org.opencontainers.image.licenses="Apache-2.0"
 LABEL org.opencontainers.image.source="https://github.com/NialtoServices/docker-rclone-sync"
 
