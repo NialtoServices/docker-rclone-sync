@@ -2,6 +2,8 @@
 
 A minimal Alpine Linux container that mirrors a source rclone remote to a target rclone remote on a cron schedule using `rclone sync`.
 
+> **`rclone sync` is destructive.** Files deleted at the source are also deleted at the target on the next run. This container is designed for the case where the target has its own versioning / point-in-time recovery (e.g. Backblaze B2 object versioning, S3 versioned buckets) that protects history — *all* recoverability of deleted or overwritten files lives at the target backend, not in this container. If you want snapshot-style backups that preserve history on their own, use [docker-restic-backup](https://github.com/NialtoServices/docker-restic-backup) instead.
+
 ## How it works
 
 On startup, the container snapshots its environment to a file (so cron jobs can access it), installs a crontab from the `SYNC_SCHEDULE` variable (defaulting to midnight daily), and runs `crond` in the foreground. Each scheduled run executes `rclone sync` to mirror the source to the target.
