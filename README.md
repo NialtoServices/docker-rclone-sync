@@ -16,7 +16,7 @@ A lockfile (`flock`) prevents overlapping runs, and failed syncs can optionally 
 
 | Variable | Default | Description |
 |---|---|---|
-| `SYNC_SCHEDULE` | `0 0 * * *` | Cron schedule for the sync job |
+| `SYNC_SCHEDULE` | `0 0 * * *` | Cron schedule for the sync job, or `disabled` to schedule no syncs while keeping the container running |
 | `RCLONE_SOURCE` | | Source rclone remote and path (e.g. `b2:my-source-bucket`) |
 | `RCLONE_TARGET` | | Target rclone remote and path (e.g. `b2:my-target-bucket`) |
 | `RCLONE_CONFIG` | `/root/.config/rclone/rclone.conf` | *(Optional)* Path to the rclone configuration file |

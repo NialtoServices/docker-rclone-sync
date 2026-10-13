@@ -7,7 +7,15 @@ SYNC_SCHEDULE="${SYNC_SCHEDULE:-0 0 * * *}"
 export -p > /run/sync.env
 
 echo "# root" > /var/spool/cron/crontabs/root
-echo "${SYNC_SCHEDULE} . /run/sync.env; /bin/nice -n 10 /usr/local/bin/notify-failure /usr/local/bin/sync" >> /var/spool/cron/crontabs/root
+
+if [ "${SYNC_SCHEDULE}" = "disabled" ]; then
+  echo "Syncs are disabled (SYNC_SCHEDULE=disabled)" >&2
+else
+  echo "${SYNC_SCHEDULE} . /run/sync.env; /bin/nice -n 10 /usr/local/bin/notify-failure /usr/local/bin/sync" >> /var/spool/cron/crontabs/root
+fi
+
 chmod 600 /var/spool/cron/crontabs/root
 
+# crond runs even with no jobs so the container stays up; exiting would make
+# restart policies like `always` restart it in a loop.
 exec /usr/sbin/crond -f -d 6
